@@ -1,29 +1,38 @@
 
-const { deepStrictEqual } = require('assert');
 const fs = require('fs-extra');
 const path = require(`path`);
+
+const open = require(`open`);
 const readline = require('readline-sync');
 
-const base = path.join(`.`, `Saves`);
+const skyrimPath = process.argv[2];
+
+const base = path.join(skyrimPath, `Saves`);
 const ss = `skyrimSaves`;
-const currentSaveFile = path.join(`.`, base, `currentSave`);
+const currentSaveFile = path.join(base, `currentSave`);
+
+try {
+  fs.mkdirSync(path.join(skyrimPath, ss));
+} catch (e) {}
 
 let saves = [];
 try {
-  saves = fs.readdirSync(path.join(`.`, ss));
+  saves = fs.readdirSync(path.join(skyrimPath, ss));
 } catch (e) {
   saves = [];
 }
 
 if (saves.length === 0) {
   const newName = readline.question(`No saves found. Enter same of current save to copy: `);
-  const newPath = path.join(`.`, ss, newName);
+  const newPath = path.join(skyrimPath, ss, newName);
 
   // Make the new save path
   fs.mkdirSync(newPath);
 
   // Copy the save
   fs.copySync(base, newPath);
+
+  saves.push(newName);
 } else {
   // See if base save is has been backed up before, and back it up again
   try {
@@ -32,7 +41,7 @@ if (saves.length === 0) {
     console.log(`Backing up existing save: ${existing}`);
     if (saves.includes(existing)) {
       fs.rmSync(currentSaveFile);
-      const backupPath = path.join(`.`, ss, existing);
+      const backupPath = path.join(skyrimPath, ss, existing);
       fs.removeSync(backupPath);
       fs.mkdirSync(backupPath);
 
@@ -59,7 +68,7 @@ if (option === 'new') {
     fs.emptyDirSync(base);
 
     // Make the new save path
-    fs.mkdirSync(path.join(`.`, ss, newName));
+    fs.mkdirSync(path.join(skyrimPath, ss, newName));
 
     // Then write what the current save is to the base Saves
     fs.writeFileSync(currentSaveFile, newName);
@@ -71,7 +80,7 @@ if (option === 'new') {
 
   if (optNumber > 0 && optNumber <= saves.length) {
     const selectedSave = saves[optNumber - 1];
-    const selectedPath = path.join(`.`, ss, selectedSave);
+    const selectedPath = path.join(skyrimPath, ss, selectedSave);
 
     // First delete the base save
     fs.emptyDirSync(base);
@@ -85,6 +94,7 @@ if (option === 'new') {
       fs.writeFileSync(currentSaveFile, selectedSave);
 
     } catch (e) {
+      console.log(e);
       console.log(`Failed to move backup to base!`);
     }
   }

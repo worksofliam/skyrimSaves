@@ -10,6 +10,5 @@ Beth and I want to play Skyrim together so bad but also want to easily manage ou
 Create a batch script like this:
 
 ```
-cd "Documents/My Games/Skyrim Special Edition"
-node repos/skyrimSaves/index.js
+node "...\Documents\GitHub\skyrimSaves\index.js" "...\Documents\My Games\Skyrim Special Edition"
 ```
